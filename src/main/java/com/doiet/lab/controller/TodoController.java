@@ -75,6 +75,50 @@ public class TodoController {
         ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
         //4 ResponseDTO를 리턴
         return ResponseEntity.ok().body(response);
+    }
 
+    @PutMapping
+    public ResponseEntity<?> updateTodo(@RequestBody TodoDTO dto)
+    {
+        String temporaryUserId = "temporary-user"; //temporary user id.
+
+        TodoEntity entity = TodoDTO.toEntity(dto);
+
+        entity.setUserId(temporaryUserId);
+
+        List<TodoEntity> entities = service.update(entity);
+
+        List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+
+        ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto)
+    {
+        try
+        {
+            String temporaryUserId = "temporary-user"; //temporary user id.
+
+            TodoEntity entity = TodoDTO.toEntity(dto);
+
+            entity.setUserId(temporaryUserId);
+
+            List<TodoEntity> entities = service.delete(entity);
+
+            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).collect(Collectors.toList());
+
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+            return ResponseEntity.ok().body(response);
+        }
+        catch(Exception e)
+        {
+            String error = e.getMessage();
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
